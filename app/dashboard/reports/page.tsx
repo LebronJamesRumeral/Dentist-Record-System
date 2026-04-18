@@ -1,0 +1,145 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Sidebar from "@/components/Sidebar";
+import { BarChart3, Users, Calendar, FileText } from "lucide-react";
+import { ChartContainer } from "@/components/ui/chart";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+  LineChart,
+  Line,
+} from 'recharts';
+
+export default function ReportsPage() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
+
+  useEffect(() => {
+    const auth = localStorage.getItem("isAuthenticated");
+    const email = localStorage.getItem("userEmail");
+    if (!auth) {
+      window.location.href = "/";
+    } else {
+      setIsAuthenticated(true);
+      setUserEmail(email || "");
+    }
+  }, []);
+
+  if (!isAuthenticated) {
+    return null;
+  }
+
+  return (
+    <div className="flex h-screen bg-background">
+      <Sidebar currentPage="reports" onNavigate={(page) => {
+        if (page === 'appointments') window.location.href = '/dashboard/appointment';
+        else if (page === 'patients') window.location.href = '/dashboard';
+        else if (page === 'reports') window.location.href = '/dashboard/reports';
+        else if (page === 'documents') window.location.href = '/dashboard/documents';
+        else if (page === 'settings') window.location.href = '/dashboard/settings';
+      }} userEmail={userEmail} />
+      <main className="flex-1 overflow-auto">
+        <div className="p-8 pl-12">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-2 gap-4">
+            <div>
+              <h1 className="text-4xl font-bold text-foreground">Reports & Analytics</h1>
+              <p className="text-muted-foreground text-lg">View clinic analytics and download reports</p>
+            </div>
+            <div className="flex gap-3">
+              <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition">
+                Download Patient List CSV
+              </button>
+              <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition">
+                Download Appointment PDF
+              </button>
+            </div>
+          </div>
+
+          {/* Analytics Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-12">
+            <div className="bg-card border border-border rounded-xl p-6 flex flex-col gap-2">
+              <div className="flex items-center gap-2 mb-2">
+                <Users className="w-5 h-5 text-primary" />
+                <span className="font-semibold text-lg">Total Patients</span>
+              </div>
+              <div className="text-3xl font-bold text-foreground">128</div>
+              <div className="text-xs text-muted-foreground">As of April 2026</div>
+            </div>
+            <div className="bg-card border border-border rounded-xl p-6 flex flex-col gap-2">
+              <div className="flex items-center gap-2 mb-2">
+                <Calendar className="w-5 h-5 text-primary" />
+                <span className="font-semibold text-lg">Appointments This Month</span>
+              </div>
+              <div className="text-3xl font-bold text-foreground">42</div>
+              <div className="text-xs text-muted-foreground">April 2026</div>
+            </div>
+            <div className="bg-card border border-border rounded-xl p-6 flex flex-col gap-2">
+              <div className="flex items-center gap-2 mb-2">
+                <FileText className="w-5 h-5 text-primary" />
+                <span className="font-semibold text-lg">Reports Generated</span>
+              </div>
+              <div className="text-3xl font-bold text-foreground">15</div>
+              <div className="text-xs text-muted-foreground">This year</div>
+            </div>
+          </div>
+
+
+          <div className="mb-12">
+            <h2 className="text-2xl font-bold text-foreground mb-4">Analytics Graphs</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* Appointments per Month Bar Chart */}
+              <div className="bg-card border border-border rounded-xl p-6">
+                <h3 className="font-semibold mb-4">Appointments per Month</h3>
+                <ChartContainer config={{ appointments: { color: '#3b82f6', label: 'Appointments' } }}>
+                  <BarChart data={[
+                    { month: 'Jan', appointments: 20 },
+                    { month: 'Feb', appointments: 25 },
+                    { month: 'Mar', appointments: 30 },
+                    { month: 'Apr', appointments: 42 },
+                    { month: 'May', appointments: 35 },
+                    { month: 'Jun', appointments: 28 },
+                  ]}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="appointments" fill="#3b82f6" />
+                  </BarChart>
+                </ChartContainer>
+              </div>
+              {/* New Patients Line Chart */}
+              <div className="bg-card border border-border rounded-xl p-6">
+                <h3 className="font-semibold mb-4">New Patients Trend</h3>
+                <ChartContainer config={{ patients: { color: '#10b981', label: 'New Patients' } }}>
+                  <LineChart data={[
+                    { month: 'Jan', patients: 8 },
+                    { month: 'Feb', patients: 12 },
+                    { month: 'Mar', patients: 15 },
+                    { month: 'Apr', patients: 18 },
+                    { month: 'May', patients: 14 },
+                    { month: 'Jun', patients: 10 },
+                  ]}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Line type="monotone" dataKey="patients" stroke="#10b981" strokeWidth={2} />
+                  </LineChart>
+                </ChartContainer>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}

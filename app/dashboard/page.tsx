@@ -149,10 +149,53 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex h-screen bg-background">
-      <Sidebar currentPage={currentPage} onNavigate={setCurrentPage} userEmail={userEmail} />
+    <div className="flex md:flex-row flex-col h-screen bg-background">
+      {/* Sidebar (desktop) and bottom nav (mobile) */}
+      <Sidebar
+        currentPage={currentPage}
+        onNavigate={(page) => {
+          if (page === 'appointments') {
+            window.location.href = '/dashboard/appointment';
+          } else if (page === 'patients') {
+            window.location.href = '/dashboard';
+          } else if (page === 'reports') {
+            window.location.href = '/dashboard/reports';
+          } else if (page === 'documents') {
+            window.location.href = '/dashboard/documents';
+          } else if (page === 'settings') {
+            window.location.href = '/dashboard/settings';
+          } else {
+            setCurrentPage(page);
+          }
+        }}
+        userEmail={userEmail}
+      />
 
-      <main className="flex-1 overflow-auto">
+      {/* Mobile header (hidden on md+) */}
+      <header className="md:hidden flex items-center justify-between px-4 py-3 border-b border-border bg-background sticky top-0 z-40">
+        <div>
+          <h1 className="text-xl font-bold text-foreground">
+            {currentPage === 'patients' && 'Dental Records'}
+            {currentPage === 'appointments' && 'Appointment Records'}
+            {currentPage === 'reports' && 'Reports & Analytics'}
+            {currentPage === 'documents' && 'Documents'}
+            {currentPage === 'settings' && 'Settings'}
+          </h1>
+          <p className="text-xs text-muted-foreground">
+            {currentPage === 'patients' && 'Manage patient records and track dental treatments'}
+            {currentPage === 'appointments' && 'Manage appointments and view schedules'}
+            {currentPage === 'reports' && 'View analytics and reports'}
+            {currentPage === 'documents' && 'Manage and upload documents'}
+            {currentPage === 'settings' && 'Clinic settings'}
+          </p>
+        </div>
+        {/* Optional: user avatar or action button */}
+        <div className="flex items-center gap-2">
+          {/* Placeholder for avatar or action */}
+        </div>
+      </header>
+
+      <main className="flex-1 overflow-auto px-2 sm:px-4 md:px-8 pt-4 pb-20 md:pb-0 w-full max-w-3xl mx-auto">
         {currentPage === 'patients' ? (
           <div>
             {currentView === 'list' ? (
@@ -176,35 +219,29 @@ export default function DashboardPage() {
             )}
           </div>
         ) : currentPage === 'appointments' ? (
-          <div className="p-8 max-w-6xl mx-auto">
-            <h1 className="text-3xl font-bold text-foreground mb-8">Appointments</h1>
-            <div className="rounded-lg border border-border bg-card p-12 text-center">
-              <Clock className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground text-lg">Appointment management coming soon</p>
-            </div>
-          </div>
+          <></>
         ) : currentPage === 'reports' ? (
-          <div className="p-8 max-w-6xl mx-auto">
-            <h1 className="text-3xl font-bold text-foreground mb-8">Reports & Analytics</h1>
-            <div className="rounded-lg border border-border bg-card p-12 text-center">
-              <BarChart3Icon className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground text-lg">Analytics dashboard coming soon</p>
+          <div className="pt-4">
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-4 md:mb-8">Reports & Analytics</h1>
+            <div className="rounded-lg border border-border bg-card p-6 md:p-12 text-center">
+              <BarChart3Icon className="w-12 h-12 md:w-16 md:h-16 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground text-base md:text-lg">Analytics dashboard coming soon</p>
             </div>
           </div>
         ) : currentPage === 'documents' ? (
-          <div className="p-8 max-w-6xl mx-auto">
-            <h1 className="text-3xl font-bold text-foreground mb-8">Documents</h1>
-            <div className="rounded-lg border border-border bg-card p-12 text-center">
-              <DocumentIcon className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground text-lg">Document management coming soon</p>
+          <div className="pt-4">
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-4 md:mb-8">Documents</h1>
+            <div className="rounded-lg border border-border bg-card p-6 md:p-12 text-center">
+              <DocumentIcon className="w-12 h-12 md:w-16 md:h-16 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground text-base md:text-lg">Document management coming soon</p>
             </div>
           </div>
         ) : (
-          <div className="p-8 max-w-6xl mx-auto">
-            <h1 className="text-3xl font-bold text-foreground mb-8">Settings</h1>
-            <div className="rounded-lg border border-border bg-card p-12 text-center">
-              <SettingsIcon className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground text-lg">Clinic settings coming soon</p>
+          <div className="pt-4">
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-4 md:mb-8">Settings</h1>
+            <div className="rounded-lg border border-border bg-card p-6 md:p-12 text-center">
+              <SettingsIcon className="w-12 h-12 md:w-16 md:h-16 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground text-base md:text-lg">Clinic settings coming soon</p>
             </div>
           </div>
         )}

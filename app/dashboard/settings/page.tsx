@@ -1,0 +1,87 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Sidebar from "@/components/Sidebar";
+import { Save } from "lucide-react";
+
+export default function SettingsPage() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
+
+  useEffect(() => {
+    const auth = localStorage.getItem("isAuthenticated");
+    const email = localStorage.getItem("userEmail");
+    if (!auth) {
+      window.location.href = "/";
+    } else {
+      setIsAuthenticated(true);
+      setUserEmail(email || "");
+    }
+  }, []);
+
+  if (!isAuthenticated) {
+    return null;
+  }
+
+  return (
+    <div className="flex h-screen bg-background">
+      <Sidebar currentPage="settings" onNavigate={(page) => {
+        if (page === 'appointments') window.location.href = '/dashboard/appointment';
+        else if (page === 'patients') window.location.href = '/dashboard';
+        else if (page === 'reports') window.location.href = '/dashboard/reports';
+        else if (page === 'documents') window.location.href = '/dashboard/documents';
+        else if (page === 'settings') window.location.href = '/dashboard/settings';
+      }} userEmail={userEmail} />
+      <main className="flex-1 overflow-auto">
+        <div className="p-8 pl-12">
+          <h1 className="text-4xl font-bold text-foreground mb-2">Clinic Settings</h1>
+          <p className="text-muted-foreground text-lg mb-8">Manage your clinic information and preferences</p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Clinic Info Card */}
+            <form className="bg-card border border-border rounded-2xl p-8 shadow-sm flex flex-col gap-6">
+              <h2 className="text-xl font-bold text-foreground mb-2">Clinic Information</h2>
+              <div className="grid gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-1">Clinic Name</label>
+                  <input type="text" className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary" defaultValue="DentalVault Clinic" />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-1">Address</label>
+                  <input type="text" className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary" defaultValue="123 Main St, City, Country" />
+                </div>
+              </div>
+              <div className="flex justify-end">
+                <button type="submit" className="flex gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition">
+                  <Save className="w-5 h-5" />
+                  Save Info
+                </button>
+              </div>
+            </form>
+
+            {/* Contact Card */}
+            <form className="bg-card border border-border rounded-2xl p-8 shadow-sm flex flex-col gap-6">
+              <h2 className="text-xl font-bold text-foreground mb-2">Contact Details</h2>
+              <div className="grid gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-1">Contact Email</label>
+                  <input type="email" className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary" defaultValue="info@dentalvault.com" />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-1">Phone Number</label>
+                  <input type="tel" className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary" defaultValue="(555) 123-4567" />
+                </div>
+              </div>
+              <div className="flex justify-end">
+                <button type="submit" className="flex gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition">
+                  <Save className="w-5 h-5" />
+                  Save Contact
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
