@@ -86,7 +86,7 @@ export default function VisitHistory({ visits }: VisitHistoryProps) {
                 {/* Clinical Notes */}
                 {visit.notes && (
                   <div className="p-4 rounded-lg bg-muted border-l-4 border-primary flex gap-3">
-                    <FileText className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                    <FileText className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                     <div className="flex-1">
                       <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
                         Clinical Notes

@@ -10,17 +10,17 @@ interface DentalChartProps {
 const getStatusColor = (status: string) => {
   switch (status) {
     case 'healthy':
-      return 'bg-green-100 border-green-300 text-green-800'
+      return { bg: 'bg-green-50', border: 'border-green-300', text: 'text-green-800' }
     case 'cavity':
-      return 'bg-red-100 border-red-300 text-red-800'
+      return { bg: 'bg-red-50', border: 'border-red-300', text: 'text-red-800' }
     case 'filling':
-      return 'bg-blue-100 border-blue-300 text-blue-800'
+      return { bg: 'bg-blue-50', border: 'border-blue-300', text: 'text-blue-800' }
     case 'treatment':
-      return 'bg-yellow-100 border-yellow-300 text-yellow-800'
+      return { bg: 'bg-yellow-50', border: 'border-yellow-300', text: 'text-yellow-800' }
     case 'missing':
-      return 'bg-gray-100 border-gray-300 text-gray-800'
+      return { bg: 'bg-gray-100', border: 'border-gray-300', text: 'text-gray-800' }
     default:
-      return 'bg-gray-100 border-gray-300 text-gray-800'
+      return { bg: 'bg-gray-100', border: 'border-gray-300', text: 'text-gray-800' }
   }
 }
 
@@ -51,80 +51,97 @@ export default function DentalChart({ teethStatus }: DentalChartProps) {
   return (
     <div>
       {/* Legend */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-8 p-4 bg-secondary rounded-lg">
-        {[
-          { status: 'healthy', label: 'Healthy' },
-          { status: 'cavity', label: 'Cavity' },
-          { status: 'filling', label: 'Filling' },
-          { status: 'treatment', label: 'Treatment' },
-          { status: 'missing', label: 'Missing' },
-        ].map(({ status, label }) => (
-          <div key={status} className="flex items-center gap-2">
-            <div
-              className={`w-4 h-4 rounded ${getStatusColor(status).split(' ')[0]}`}
-            />
-            <span className="text-xs text-foreground">{label}</span>
+      <div className="mb-8">
+        <div className="rounded-2xl bg-card p-4">
+          <div className="flex flex-wrap items-center gap-4">
+            {[{
+              status: 'healthy',
+              label: 'Healthy'
+            },{
+              status: 'cavity',
+              label: 'Cavity'
+            },{
+              status: 'filling',
+              label: 'Filling'
+            },{
+              status: 'treatment',
+              label: 'Treatment'
+            },{
+              status: 'missing',
+              label: 'Missing'
+            }].map(({status,label}) => {
+              const c = getStatusColor(status)
+              return (
+                <div key={status} className="flex items-center gap-3">
+                  <div className={`w-4 h-4 rounded-md border ${c.border} ${c.bg}`} />
+                  <span className="text-sm text-muted-foreground">{label}</span>
+                </div>
+              )
+            })}
           </div>
-        ))}
+        </div>
       </div>
 
       {/* Dental Chart */}
-      <div className="space-y-8">
-        {/* Upper Teeth */}
-        <div>
-          <h3 className="text-sm font-semibold text-foreground mb-4 px-2">
-            Upper Teeth
-          </h3>
-          <div className="grid grid-cols-8 gap-2">
-            {upperTeeth.map((tooth) => (
-              <button
-                key={tooth}
-                onClick={() => setSelectedTooth(selectedTooth === tooth ? null : tooth)}
-                className={`p-3 rounded-lg border-2 transition-all ${
-                  selectedTooth === tooth ? 'ring-2 ring-primary ring-offset-2' : ''
-                } ${getStatusColor(teethStatus[tooth])}`}
-              >
-                <div className="text-xs font-bold">{tooth}</div>
-              </button>
-            ))}
+      <div className="space-y-8 overflow-x-auto pb-4 -mx-6 px-6 md:mx-0 md:px-0 [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-muted-foreground/30 [&::-webkit-scrollbar-thumb]:rounded-full">
+        <div className="min-w-[640px] space-y-8">
+          {/* Upper Teeth */}
+          <div>
+            <h3 className="text-sm font-semibold text-foreground mb-4 px-2">
+              Upper Teeth
+            </h3>
+            <div className="grid grid-cols-8 gap-3">
+              {upperTeeth.map((tooth) => {
+                const c = getStatusColor(teethStatus[tooth])
+                return (
+                  <button
+                    key={tooth}
+                    onClick={() => setSelectedTooth(selectedTooth === tooth ? null : tooth)}
+                    className={`flex items-center justify-center h-14 rounded-xl border-2 bg-white/40 text-sm font-semibold transition-shadow ${c.bg} ${c.border} ${c.text} hover:shadow-md ${selectedTooth === tooth ? 'ring-4 ring-primary/30' : ''}`}
+                  >
+                    {tooth}
+                  </button>
+                )
+              })}
+            </div>
           </div>
-        </div>
 
-        {/* Divider */}
-        <div className="h-1 bg-border rounded-full" />
+          {/* Divider */}
+          <div className="h-1 bg-border rounded-full" />
 
-        {/* Lower Teeth */}
-        <div>
-          <h3 className="text-sm font-semibold text-foreground mb-4 px-2">
-            Lower Teeth
-          </h3>
-          <div className="grid grid-cols-8 gap-2">
-            {lowerTeeth.map((tooth) => (
-              <button
-                key={tooth}
-                onClick={() => setSelectedTooth(selectedTooth === tooth ? null : tooth)}
-                className={`p-3 rounded-lg border-2 transition-all ${
-                  selectedTooth === tooth ? 'ring-2 ring-primary ring-offset-2' : ''
-                } ${getStatusColor(teethStatus[tooth])}`}
-              >
-                <div className="text-xs font-bold">{tooth}</div>
-              </button>
-            ))}
+          {/* Lower Teeth */}
+          <div>
+            <h3 className="text-sm font-semibold text-foreground mb-4 px-2">
+              Lower Teeth
+            </h3>
+            <div className="grid grid-cols-8 gap-3">
+              {lowerTeeth.map((tooth) => {
+                const c = getStatusColor(teethStatus[tooth])
+                return (
+                  <button
+                    key={tooth}
+                    onClick={() => setSelectedTooth(selectedTooth === tooth ? null : tooth)}
+                    className={`flex items-center justify-center h-14 rounded-xl border-2 bg-white/40 text-sm font-semibold transition-shadow ${c.bg} ${c.border} ${c.text} hover:shadow-md ${selectedTooth === tooth ? 'ring-4 ring-primary/30' : ''}`}
+                  >
+                    {tooth}
+                  </button>
+                )
+              })}
+            </div>
           </div>
         </div>
       </div>
 
       {/* Selected Tooth Info */}
       {selectedTooth && (
-        <div className="mt-8 p-6 bg-primary/5 border-l-4 border-primary rounded-lg">
-          <h4 className="font-semibold text-foreground mb-2">Tooth #{selectedTooth}</h4>
-          <div className="flex items-center gap-2">
-            <div
-              className={`w-3 h-3 rounded-full ${getStatusColor(teethStatus[selectedTooth]).split(' ')[0]}`}
-            />
-            <span className="text-sm text-foreground font-medium">
-              {getStatusLabel(teethStatus[selectedTooth])}
-            </span>
+        <div className="mt-8 rounded-2xl border border-border bg-card p-6 shadow-sm">
+          <h4 className="mb-2 text-lg font-semibold text-foreground">Tooth #{selectedTooth}</h4>
+          <div className="flex items-center gap-3">
+            <div className={`h-4 w-4 rounded-full ${getStatusColor(teethStatus[selectedTooth]).bg} ${getStatusColor(teethStatus[selectedTooth]).border}`} />
+            <div>
+              <div className="text-sm font-medium text-foreground">{getStatusLabel(teethStatus[selectedTooth])}</div>
+              <div className="text-xs text-muted-foreground">Click a tooth to toggle selection</div>
+            </div>
           </div>
         </div>
       )}

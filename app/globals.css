@@ -4,6 +4,11 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  --bg-gradient-start: #fbfdff;
+  --bg-gradient-end: #fff8f2;
+  --sidebar-gradient-start: #0f172a;
+  --sidebar-gradient-end: #1e3a8a;
+  --card-shadow: 0 6px 18px rgba(16,24,40,0.08), inset 0 1px 0 rgba(255,255,255,0.6);
   --background: oklch(0.98 0.002 280);
   --foreground: oklch(0.2 0.01 280);
   --card: oklch(1 0 0);
@@ -120,6 +125,30 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    background-image: linear-gradient(135deg,var(--bg-gradient-start),var(--bg-gradient-end));
+    background-attachment: fixed;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    @apply text-foreground;
+  }
+
+  /* Card utility used throughout the app for a soft, elevated look */
+  .card {
+    @apply bg-card text-card-foreground rounded-xl border p-4;
+    box-shadow: var(--card-shadow);
+    border: 1px solid rgba(16,24,40,0.04);
+  }
+
+  /* Dashboard hero / controls */
+  .dashboard-hero {
+    @apply rounded-2xl p-6 mb-6 bg-card border;
+    box-shadow: 0 10px 30px rgba(16,24,40,0.06);
+  }
+
+  .filter-pill {
+    @apply inline-flex items-center gap-2 px-3 py-2 rounded-full text-sm border;
+    background: rgba(255,255,255,0.6);
+    backdrop-filter: blur(6px);
+    border-color: rgba(16,24,40,0.04);
   }
 }

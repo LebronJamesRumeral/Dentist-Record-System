@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { X } from 'lucide-react'
+import { X, ChevronDown } from 'lucide-react'
 
 interface AddVisitModalProps {
   onClose: () => void
@@ -39,10 +39,14 @@ export default function AddVisitModal({
   const [formData, setFormData] = useState({
     date: today,
     procedure: 'Cleaning',
-    tooth: '',
+    tooth: 'All',
     condition: 'Healthy',
     notes: '',
   })
+
+  const [isToothOpen, setIsToothOpen] = useState(false)
+  const [isProcedureOpen, setIsProcedureOpen] = useState(false)
+  const [isConditionOpen, setIsConditionOpen] = useState(false)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -94,59 +98,118 @@ export default function AddVisitModal({
               </div>
 
               {/* Procedure */}
-              <div>
+              <div className="relative">
                 <label className="block text-sm font-semibold text-foreground mb-2">
                   Procedure <span className="text-destructive">*</span>
                 </label>
-                <select
-                  value={formData.procedure}
-                  onChange={(e) =>
-                    setFormData({ ...formData, procedure: e.target.value })
-                  }
-                  className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                <button
+                  type="button"
+                  onClick={() => setIsProcedureOpen(!isProcedureOpen)}
+                  className="w-full flex items-center justify-between px-4 py-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-left text-sm"
                 >
-                  {procedures.map((proc) => (
-                    <option key={proc} value={proc}>
-                      {proc}
-                    </option>
-                  ))}
-                </select>
+                  <span>{formData.procedure}</span>
+                  <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform duration-200" style={{ transform: isProcedureOpen ? 'rotate(180deg)' : 'none' }} />
+                </button>
+                {isProcedureOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setIsProcedureOpen(false)} />
+                    <div className="absolute left-0 right-0 z-50 mt-1 max-h-48 overflow-y-auto rounded-lg border border-border bg-card shadow-lg py-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-muted-foreground/30 [&::-webkit-scrollbar-thumb]:rounded-full">
+                      {procedures.map((proc) => (
+                        <button
+                          key={proc}
+                          type="button"
+                          onClick={() => {
+                            setFormData({ ...formData, procedure: proc })
+                            setIsProcedureOpen(false)
+                          }}
+                          className={`w-full px-4 py-2 text-left hover:bg-secondary text-foreground text-sm font-medium transition-colors ${formData.procedure === proc ? 'bg-secondary' : ''}`}
+                        >
+                          {proc}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* Tooth Number */}
-              <div>
+              <div className="relative">
                 <label className="block text-sm font-semibold text-foreground mb-2">
                   Tooth Number
                 </label>
-                <input
-                  type="text"
-                  value={formData.tooth}
-                  onChange={(e) =>
-                    setFormData({ ...formData, tooth: e.target.value })
-                  }
-                  className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                  placeholder="e.g., #14, #15 or 'All'"
-                />
+                <button
+                  type="button"
+                  onClick={() => setIsToothOpen(!isToothOpen)}
+                  className="w-full flex items-center justify-between px-4 py-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-left text-sm"
+                >
+                  <span>{formData.tooth}</span>
+                  <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform duration-200" style={{ transform: isToothOpen ? 'rotate(180deg)' : 'none' }} />
+                </button>
+                {isToothOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setIsToothOpen(false)} />
+                    <div className="absolute left-0 right-0 z-50 mt-1 max-h-48 overflow-y-auto rounded-lg border border-border bg-card shadow-lg py-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-muted-foreground/30 [&::-webkit-scrollbar-thumb]:rounded-full">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData({ ...formData, tooth: 'All' })
+                          setIsToothOpen(false)
+                        }}
+                        className={`w-full px-4 py-2 text-left hover:bg-secondary text-foreground text-sm font-medium transition-colors ${formData.tooth === 'All' ? 'bg-secondary' : ''}`}
+                      >
+                        All
+                      </button>
+                      {Array.from({ length: 32 }, (_, i) => `#${i + 1}`).map((t) => (
+                        <button
+                          key={t}
+                          type="button"
+                          onClick={() => {
+                            setFormData({ ...formData, tooth: t })
+                            setIsToothOpen(false)
+                          }}
+                          className={`w-full px-4 py-2 text-left hover:bg-secondary text-foreground text-sm font-medium transition-colors ${formData.tooth === t ? 'bg-secondary' : ''}`}
+                        >
+                          Tooth {t}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* Condition */}
-              <div>
+              <div className="relative">
                 <label className="block text-sm font-semibold text-foreground mb-2">
                   Tooth Condition
                 </label>
-                <select
-                  value={formData.condition}
-                  onChange={(e) =>
-                    setFormData({ ...formData, condition: e.target.value })
-                  }
-                  className="w-full px-4 py-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                <button
+                  type="button"
+                  onClick={() => setIsConditionOpen(!isConditionOpen)}
+                  className="w-full flex items-center justify-between px-4 py-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-left text-sm"
                 >
-                  {conditions.map((cond) => (
-                    <option key={cond} value={cond}>
-                      {cond}
-                    </option>
-                  ))}
-                </select>
+                  <span>{formData.condition}</span>
+                  <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform duration-200" style={{ transform: isConditionOpen ? 'rotate(180deg)' : 'none' }} />
+                </button>
+                {isConditionOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setIsConditionOpen(false)} />
+                    <div className="absolute left-0 right-0 z-50 mt-1 max-h-48 overflow-y-auto rounded-lg border border-border bg-card shadow-lg py-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-muted-foreground/30 [&::-webkit-scrollbar-thumb]:rounded-full">
+                      {conditions.map((cond) => (
+                        <button
+                          key={cond}
+                          type="button"
+                          onClick={() => {
+                            setFormData({ ...formData, condition: cond })
+                            setIsConditionOpen(false)
+                          }}
+                          className={`w-full px-4 py-2 text-left hover:bg-secondary text-foreground text-sm font-medium transition-colors ${formData.condition === cond ? 'bg-secondary' : ''}`}
+                        >
+                          {cond}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
             </div>
 

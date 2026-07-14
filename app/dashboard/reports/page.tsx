@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import { BarChart3, Users, Calendar, FileText } from "lucide-react";
 import { ChartContainer } from "@/components/ui/chart";
+import { Button } from '@/components/ui/button'
+import PageHeader from '@/components/PageHeader'
 import {
   BarChart,
   Bar,
@@ -46,21 +48,17 @@ export default function ReportsPage() {
         else if (page === 'settings') window.location.href = '/dashboard/settings';
       }} userEmail={userEmail} />
       <main className="flex-1 overflow-auto">
-        <div className="p-8 pl-12">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-2 gap-4">
-            <div>
-              <h1 className="text-4xl font-bold text-foreground">Reports & Analytics</h1>
-              <p className="text-muted-foreground text-lg">View clinic analytics and download reports</p>
-            </div>
-            <div className="flex gap-3">
-              <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition">
-                Download Patient List CSV
-              </button>
-              <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition">
-                Download Appointment PDF
-              </button>
-            </div>
-          </div>
+        <div className="p-4 md:p-8 md:pl-12 pb-24 md:pb-8">
+          <PageHeader
+            title="Reports & Analytics"
+            subtitle="View clinic analytics and download reports"
+            actions={
+              <>
+                <Button className="px-4 py-2">Download Patient List CSV</Button>
+                <Button className="px-4 py-2">Download Appointment PDF</Button>
+              </>
+            }
+          />
 
           {/* Analytics Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-12">

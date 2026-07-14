@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import { Save } from "lucide-react";
+import { Button } from '@/components/ui/button'
+import PageHeader from '@/components/PageHeader'
 
 export default function SettingsPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -33,10 +35,8 @@ export default function SettingsPage() {
         else if (page === 'settings') window.location.href = '/dashboard/settings';
       }} userEmail={userEmail} />
       <main className="flex-1 overflow-auto">
-        <div className="p-8 pl-12">
-          <h1 className="text-4xl font-bold text-foreground mb-2">Clinic Settings</h1>
-          <p className="text-muted-foreground text-lg mb-8">Manage your clinic information and preferences</p>
-
+        <div className="p-4 md:p-8 md:pl-12 pb-24 md:pb-8">
+          <PageHeader title="Clinic Settings" subtitle="Manage your clinic information and preferences" />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Clinic Info Card */}
             <form className="bg-card border border-border rounded-2xl p-8 shadow-sm flex flex-col gap-6">
@@ -52,10 +52,10 @@ export default function SettingsPage() {
                 </div>
               </div>
               <div className="flex justify-end">
-                <button type="submit" className="flex gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition">
+                <Button type="submit" className="flex gap-2 px-6 py-3">
                   <Save className="w-5 h-5" />
                   Save Info
-                </button>
+                </Button>
               </div>
             </form>
 
@@ -73,10 +73,10 @@ export default function SettingsPage() {
                 </div>
               </div>
               <div className="flex justify-end">
-                <button type="submit" className="flex gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition">
+                <Button type="submit" className="flex gap-2 px-6 py-3">
                   <Save className="w-5 h-5" />
                   Save Contact
-                </button>
+                </Button>
               </div>
             </form>
           </div>

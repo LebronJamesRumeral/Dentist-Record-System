@@ -8,6 +8,28 @@ import PatientRecord from '@/components/PatientRecord'
 import AddPatientModal from '@/components/AddPatientModal'
 import AddVisitModal from '@/components/AddVisitModal'
 import { Button } from '@/components/ui/button'
+import PageHeader from '@/components/PageHeader'
+
+interface Visit {
+  id: number
+  date: string
+  procedure: string
+  tooth: string
+  condition: string
+  notes: string
+}
+
+interface Patient {
+  id: number
+  name: string
+  age: number
+  contact: string
+  medicalNotes: string
+  lastVisit: string
+  lastNote: string
+  visits: Visit[]
+  teethStatus: { [key: string]: string }
+}
 
 export default function DashboardPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -17,7 +39,7 @@ export default function DashboardPage() {
   const [selectedPatient, setSelectedPatient] = useState<any>(null)
   const [showAddPatient, setShowAddPatient] = useState(false)
   const [showAddVisit, setShowAddVisit] = useState(false)
-  const [patients, setPatients] = useState([
+  const [patients, setPatients] = useState<Patient[]>([
     {
       id: 1,
       name: 'Sarah Johnson',
@@ -101,6 +123,105 @@ export default function DashboardPage() {
         25: 'healthy', 26: 'healthy', 27: 'healthy', 28: 'healthy', 29: 'healthy', 30: 'healthy', 31: 'healthy', 32: 'healthy',
       },
     },
+    {
+      id: 4,
+      name: 'James Carter',
+      age: 41,
+      contact: '(555) 456-7890',
+      medicalNotes: 'No known allergies',
+      lastVisit: '2024-04-11',
+      lastNote: 'Check-up next month',
+      visits: [],
+      teethStatus: Object.fromEntries(Array.from({ length: 32 }, (_, i) => [i + 1, 'healthy'])),
+    },
+    {
+      id: 5,
+      name: 'Olivia Vance',
+      age: 24,
+      contact: '(555) 567-8901',
+      medicalNotes: 'Sensitive teeth',
+      lastVisit: '2024-04-02',
+      lastNote: 'Recommended sensitivity toothpaste',
+      visits: [],
+      teethStatus: Object.fromEntries(Array.from({ length: 32 }, (_, i) => [i + 1, 'healthy'])),
+    },
+    {
+      id: 6,
+      name: 'Robert Downey',
+      age: 58,
+      contact: '(555) 678-9012',
+      medicalNotes: 'Taking blood thinners',
+      lastVisit: '2024-04-12',
+      lastNote: 'Teeth cleaning completed',
+      visits: [],
+      teethStatus: Object.fromEntries(Array.from({ length: 32 }, (_, i) => [i + 1, 'healthy'])),
+    },
+    {
+      id: 7,
+      name: 'Jessica Alba',
+      age: 39,
+      contact: '(555) 789-0123',
+      medicalNotes: 'Pregnancy patient (2nd trimester)',
+      lastVisit: '2024-03-28',
+      lastNote: 'Routine scaling done',
+      visits: [],
+      teethStatus: Object.fromEntries(Array.from({ length: 32 }, (_, i) => [i + 1, 'healthy'])),
+    },
+    {
+      id: 8,
+      name: 'David Beckham',
+      age: 49,
+      contact: '(555) 890-1234',
+      medicalNotes: 'Bruxism, uses nightguard',
+      lastVisit: '2024-04-01',
+      lastNote: 'Nightguard adjustment check',
+      visits: [],
+      teethStatus: Object.fromEntries(Array.from({ length: 32 }, (_, i) => [i + 1, 'healthy'])),
+    },
+    {
+      id: 9,
+      name: 'Emma Watson',
+      age: 33,
+      contact: '(555) 901-2345',
+      medicalNotes: 'Allergic to latex',
+      lastVisit: '2024-04-04',
+      lastNote: 'Small pit on tooth #19 monitored',
+      visits: [],
+      teethStatus: Object.fromEntries(Array.from({ length: 32 }, (_, i) => [i + 1, 'healthy'])),
+    },
+    {
+      id: 10,
+      name: 'William Prince',
+      age: 45,
+      contact: '(555) 012-3456',
+      medicalNotes: 'High cholesterol',
+      lastVisit: '2024-04-06',
+      lastNote: 'Routine check-up scheduled',
+      visits: [],
+      teethStatus: Object.fromEntries(Array.from({ length: 32 }, (_, i) => [i + 1, 'healthy'])),
+    },
+    {
+      id: 11,
+      name: 'Sophia Loren',
+      age: 72,
+      contact: '(555) 123-9876',
+      medicalNotes: 'Osteoporosis medications',
+      lastVisit: '2024-03-20',
+      lastNote: 'Denture adjustments',
+      visits: [],
+      teethStatus: Object.fromEntries(Array.from({ length: 32 }, (_, i) => [i + 1, 'healthy'])),
+    },
+    {
+      id: 12,
+      name: 'Henry Cavill',
+      age: 36,
+      contact: '(555) 234-8765',
+      medicalNotes: 'Healthy, active patient',
+      lastVisit: '2024-04-14',
+      lastNote: 'Routine scaling completed',
+      visits: [],
+      teethStatus: Object.fromEntries(Array.from({ length: 32 }, (_, i) => [i + 1, 'healthy'])),
+    },
   ])
 
   // Check authentication on mount
@@ -171,80 +292,63 @@ export default function DashboardPage() {
         userEmail={userEmail}
       />
 
-      {/* Mobile header (hidden on md+) */}
-      <header className="md:hidden flex items-center justify-between px-4 py-3 border-b border-border bg-background sticky top-0 z-40">
-        <div>
-          <h1 className="text-xl font-bold text-foreground">
-            {currentPage === 'patients' && 'Dental Records'}
-            {currentPage === 'appointments' && 'Appointment Records'}
-            {currentPage === 'reports' && 'Reports & Analytics'}
-            {currentPage === 'documents' && 'Documents'}
-            {currentPage === 'settings' && 'Settings'}
-          </h1>
-          <p className="text-xs text-muted-foreground">
-            {currentPage === 'patients' && 'Manage patient records and track dental treatments'}
-            {currentPage === 'appointments' && 'Manage appointments and view schedules'}
-            {currentPage === 'reports' && 'View analytics and reports'}
-            {currentPage === 'documents' && 'Manage and upload documents'}
-            {currentPage === 'settings' && 'Clinic settings'}
-          </p>
+      <main className="flex-1 overflow-auto">
+        <div className="p-4 md:p-8 md:pl-12 pb-24 md:pb-8">
+          {currentPage === 'patients' ? (
+            <div>
+              {currentView === 'list' ? (
+                <>
+                  <PageHeader title="Dental Records" subtitle="Search, review, and open a patient record from the cards below." />
+                  <PatientList
+                    patients={patients}
+                    onSelectPatient={(patient) => {
+                      setSelectedPatient(patient)
+                      setCurrentView('record')
+                    }}
+                    onAddPatient={() => setShowAddPatient(true)}
+                    embedded={true}
+                  />
+                </>
+              ) : (
+                <PatientRecord
+                  patient={selectedPatient}
+                  onBack={() => {
+                    setCurrentView('list')
+                    setSelectedPatient(null)
+                  }}
+                  onAddVisit={() => setShowAddVisit(true)}
+                  embedded={true}
+                />
+              )}
+            </div>
+          ) : currentPage === 'appointments' ? (
+            <></>
+          ) : currentPage === 'reports' ? (
+            <div className="pt-4">
+              <PageHeader title="Reports & Analytics" subtitle="View analytics and download reports" />
+              <div className="rounded-lg border border-border bg-card p-6 md:p-12 text-center">
+                <BarChart3Icon className="w-12 h-12 md:w-16 md:h-16 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground text-base md:text-lg">Analytics dashboard coming soon</p>
+              </div>
+            </div>
+          ) : currentPage === 'documents' ? (
+            <div className="pt-4">
+              <PageHeader title="Documents" subtitle="Manage and upload documents" />
+              <div className="rounded-lg border border-border bg-card p-6 md:p-12 text-center">
+                <DocumentIcon className="w-12 h-12 md:w-16 md:h-16 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground text-base md:text-lg">Document management coming soon</p>
+              </div>
+            </div>
+          ) : (
+            <div className="pt-4">
+              <PageHeader title="Settings" subtitle="Manage clinic preferences" />
+              <div className="rounded-lg border border-border bg-card p-6 md:p-12 text-center">
+                <SettingsIcon className="w-12 h-12 md:w-16 md:h-16 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground text-base md:text-lg">Clinic settings coming soon</p>
+              </div>
+            </div>
+          )}
         </div>
-        {/* Optional: user avatar or action button */}
-        <div className="flex items-center gap-2">
-          {/* Placeholder for avatar or action */}
-        </div>
-      </header>
-
-      <main className="flex-1 overflow-auto px-2 sm:px-4 md:px-8 pt-4 pb-20 md:pb-0 w-full max-w-3xl mx-auto">
-        {currentPage === 'patients' ? (
-          <div>
-            {currentView === 'list' ? (
-              <PatientList
-                patients={patients}
-                onSelectPatient={(patient) => {
-                  setSelectedPatient(patient)
-                  setCurrentView('record')
-                }}
-                onAddPatient={() => setShowAddPatient(true)}
-              />
-            ) : (
-              <PatientRecord
-                patient={selectedPatient}
-                onBack={() => {
-                  setCurrentView('list')
-                  setSelectedPatient(null)
-                }}
-                onAddVisit={() => setShowAddVisit(true)}
-              />
-            )}
-          </div>
-        ) : currentPage === 'appointments' ? (
-          <></>
-        ) : currentPage === 'reports' ? (
-          <div className="pt-4">
-            <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-4 md:mb-8">Reports & Analytics</h1>
-            <div className="rounded-lg border border-border bg-card p-6 md:p-12 text-center">
-              <BarChart3Icon className="w-12 h-12 md:w-16 md:h-16 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground text-base md:text-lg">Analytics dashboard coming soon</p>
-            </div>
-          </div>
-        ) : currentPage === 'documents' ? (
-          <div className="pt-4">
-            <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-4 md:mb-8">Documents</h1>
-            <div className="rounded-lg border border-border bg-card p-6 md:p-12 text-center">
-              <DocumentIcon className="w-12 h-12 md:w-16 md:h-16 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground text-base md:text-lg">Document management coming soon</p>
-            </div>
-          </div>
-        ) : (
-          <div className="pt-4">
-            <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-4 md:mb-8">Settings</h1>
-            <div className="rounded-lg border border-border bg-card p-6 md:p-12 text-center">
-              <SettingsIcon className="w-12 h-12 md:w-16 md:h-16 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground text-base md:text-lg">Clinic settings coming soon</p>
-            </div>
-          </div>
-        )}
       </main>
 
       {showAddPatient && (
