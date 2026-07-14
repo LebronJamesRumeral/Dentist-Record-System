@@ -1,5 +1,6 @@
-'use client'
+ 'use client'
 
+import { useEffect, useState } from 'react'
 import { ArrowLeft, Plus, AlertCircle, CalendarDays, Phone, UserRound } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import DentalChart from './DentalChart'
@@ -18,6 +19,20 @@ export default function PatientRecord({
   onAddVisit,
   embedded = false,
 }: PatientRecordProps) {
+  const [appointments, setAppointments] = useState<any[]>([])
+
+  useEffect(() => {
+    try {
+      const raw = typeof window !== 'undefined' ? window.localStorage.getItem('dv_appointments') : null
+      if (!raw) return setAppointments([])
+      const list = JSON.parse(raw)
+      // prefer external_id match; fallback to name for older appointments
+      const matches = list.filter((a: any) => (patient.external_id && a.patientExternalId && String(a.patientExternalId) === String(patient.external_id)) || String(a.patient).toLowerCase() === String(patient.name).toLowerCase())
+      setAppointments(matches)
+    } catch (e) {
+      // ignore
+    }
+  }, [patient])
   const lastVisitDate = new Date(patient.lastVisit).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
@@ -161,6 +176,32 @@ export default function PatientRecord({
           </div>
         </div>
         <VisitHistory visits={patient.visits} />
+      </div>
+
+      {/* Appointments Section */}
+      <div className="mb-8">
+        <div className="mb-6 flex items-center justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-bold text-foreground">Appointments</h2>
+            <p className="mt-1 text-sm text-muted-foreground">Upcoming and past appointments for this patient</p>
+          </div>
+        </div>
+        <div className="rounded-2xl border border-border bg-card p-4">
+          {appointments.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No appointments found for this patient.</p>
+          ) : (
+            <ul className="space-y-3">
+              {appointments.map((a) => (
+                <li key={a.id} className="flex items-center justify-between">
+                  <div>
+                    <div className="font-semibold">{new Date(a.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} • {a.time}</div>
+                    <div className="text-sm text-muted-foreground">{a.reason} — {a.notes}</div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
     </div>
   )

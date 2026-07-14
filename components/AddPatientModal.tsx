@@ -25,10 +25,12 @@ export default function AddPatientModal({
       alert('Please fill in all required fields')
       return
     }
-    onSubmit({
+    const payload = {
       ...formData,
       age: parseInt(formData.age),
-    })
+      external_id: (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') ? crypto.randomUUID() : `ext-${Date.now()}`,
+    }
+    onSubmit(payload)
   }
 
   return (

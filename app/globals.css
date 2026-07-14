@@ -132,6 +132,17 @@
     @apply text-foreground;
   }
 
+  @keyframes dashboard-page-enter {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   /* Card utility used throughout the app for a soft, elevated look */
   .card {
     @apply bg-card text-card-foreground rounded-xl border p-4;

@@ -1,6 +1,7 @@
-'use client'
+"use client"
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Plus, Search, Calendar } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -36,6 +37,7 @@ export default function PatientList({
   onAddPatient,
   embedded = false,
 }: PatientListProps) {
+  const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 10
@@ -124,7 +126,10 @@ export default function PatientList({
                   <TableRow
                     key={patient.id}
                     className="hover:bg-muted/50 cursor-pointer transition-colors"
-                    onClick={() => onSelectPatient(patient)}
+                    onClick={() => {
+                      router.push(`/dashboard/patient/id/${patient.id}`)
+                      onSelectPatient && onSelectPatient(patient)
+                    }}
                   >
                     <TableCell className="font-semibold px-6 py-4 text-foreground">
                       {patient.name}
@@ -145,7 +150,10 @@ export default function PatientList({
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => onSelectPatient(patient)}
+                        onClick={() => {
+                          router.push(`/dashboard/patient/id/${patient.id}`)
+                          onSelectPatient && onSelectPatient(patient)
+                        }}
                         className="font-semibold text-primary hover:text-primary/80"
                       >
                         View
@@ -164,7 +172,10 @@ export default function PatientList({
                 key={patient.id}
                 role="button"
                 tabIndex={0}
-                onClick={() => onSelectPatient(patient)}
+                onClick={() => {
+                  router.push(`/dashboard/patient/id/${patient.id}`)
+                  onSelectPatient && onSelectPatient(patient)
+                }}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') onSelectPatient(patient)
                 }}

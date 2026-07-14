@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Sidebar from "@/components/Sidebar";
 import { Save } from "lucide-react";
 import { Button } from '@/components/ui/button'
 import PageHeader from '@/components/PageHeader'
@@ -26,16 +25,8 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="flex h-screen bg-background">
-      <Sidebar currentPage="settings" onNavigate={(page) => {
-        if (page === 'appointments') window.location.href = '/dashboard/appointment';
-        else if (page === 'patients') window.location.href = '/dashboard';
-        else if (page === 'reports') window.location.href = '/dashboard/reports';
-        else if (page === 'documents') window.location.href = '/dashboard/documents';
-        else if (page === 'settings') window.location.href = '/dashboard/settings';
-      }} userEmail={userEmail} />
-      <main className="flex-1 overflow-auto">
-        <div className="p-4 md:p-8 md:pl-12 pb-24 md:pb-8">
+    <div className="min-h-screen bg-background">
+      <div className="p-4 md:p-8 md:pl-12 pb-24 md:pb-8">
           <PageHeader title="Clinic Settings" subtitle="Manage your clinic information and preferences" />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Clinic Info Card */}
@@ -81,7 +72,6 @@ export default function SettingsPage() {
             </form>
           </div>
         </div>
-      </main>
     </div>
   );
 }

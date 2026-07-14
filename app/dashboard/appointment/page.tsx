@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Sidebar from "@/components/Sidebar";
 import { Calendar, Search, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from '@/components/ui/input'
 import PageHeader from '@/components/PageHeader'
+import { SEED_PATIENTS } from '@/lib/mock/patients'
 import AddAppointmentModal from "@/components/AddAppointmentModal";
 import {
   Table,
@@ -17,11 +17,14 @@ import {
 } from '@/components/ui/table'
 interface Appointment {
   id: number;
-  patient: string;
+  patient: string; // display name
+  patientExternalId?: string; // external UUID from patients
   date: string;
   time: string;
   reason: string;
   notes: string;
+  tooth?: string;
+  toothCondition?: string;
 }
 
 export default function AppointmentPage() {
@@ -29,105 +32,74 @@ export default function AppointmentPage() {
   const [userEmail, setUserEmail] = useState("");
   const [search, setSearch] = useState("");
   const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
+  const [isEditing, setIsEditing] = useState(false)
+  const [editForm, setEditForm] = useState<Appointment | null>(null)
+  const [patientSearch, setPatientSearch] = useState('')
 
-  const [appointments, setAppointments] = useState<Appointment[]>([
-    {
-      id: 1,
-      patient: "Sarah Johnson",
-      date: "2024-04-20",
-      time: "10:00 AM",
-      reason: "Routine Checkup",
-      notes: "Patient requested early morning slot.",
-    },
-    {
-      id: 2,
-      patient: "Michael Chen",
-      date: "2024-04-21",
-      time: "2:30 PM",
-      reason: "Root Canal Follow-up",
-      notes: "Check healing progress.",
-    },
-    {
-      id: 3,
-      patient: "Emily Rodriguez",
-      date: "2024-04-22",
-      time: "11:15 AM",
-      reason: "Filling",
-      notes: "Composite filling for tooth #8.",
-    },
-    {
-      id: 4,
-      patient: "James Carter",
-      date: "2024-04-23",
-      time: "09:30 AM",
-      reason: "Cleaning & Scaling",
-      notes: "Regular check-up.",
-    },
-    {
-      id: 5,
-      patient: "Olivia Vance",
-      date: "2024-04-24",
-      time: "11:00 AM",
-      reason: "Consultation",
-      notes: "Discuss sensitive teeth remedies.",
-    },
-    {
-      id: 6,
-      patient: "Robert Downey",
-      date: "2024-04-25",
-      time: "01:30 PM",
-      reason: "Deep Cleaning",
-      notes: "Patient is on blood thinners.",
-    },
-    {
-      id: 7,
-      patient: "Jessica Alba",
-      date: "2024-04-26",
-      time: "03:00 PM",
-      reason: "Routine Checkup",
-      notes: "Second trimester checkup.",
-    },
-    {
-      id: 8,
-      patient: "David Beckham",
-      date: "2024-04-27",
-      time: "10:30 AM",
-      reason: "Nightguard Fitting",
-      notes: "Adjusting teeth grinding guard.",
-    },
-    {
-      id: 9,
-      patient: "Emma Watson",
-      date: "2024-04-28",
-      time: "02:00 PM",
-      reason: "Cavity Check",
-      notes: "Latex allergy precautions.",
-    },
-    {
-      id: 10,
-      patient: "William Prince",
-      date: "2024-04-29",
-      time: "09:00 AM",
-      reason: "Routine Checkup",
-      notes: "Standard visual exam.",
-    },
-    {
-      id: 11,
-      patient: "Sophia Loren",
-      date: "2024-04-30",
-      time: "11:30 AM",
-      reason: "Denture Adjustment",
-      notes: "Slight discomfort on lower denture.",
-    },
-    {
-      id: 12,
-      patient: "Henry Cavill",
-      date: "2024-05-01",
-      time: "04:00 PM",
-      reason: "Cleaning",
-      notes: "Routine scaling appointment.",
-    },
-  ])
+  const [appointments, setAppointments] = useState<Appointment[]>(() => {
+    try {
+      const raw = typeof window !== 'undefined' ? window.localStorage.getItem('dv_appointments') : null
+      if (raw) return JSON.parse(raw) as Appointment[]
+    } catch (e) {
+      // ignore
+    }
+
+    // fallback seeded appointments (minimal)
+    return [
+      {
+        id: 1,
+        patient: "Sarah Johnson",
+        patientExternalId: 'ext-1',
+        date: "2024-04-20",
+        time: "10:00 AM",
+        reason: "Routine Checkup",
+        notes: "Patient requested early morning slot.",
+        tooth: 'All',
+        toothCondition: 'Healthy',
+      },
+      {
+        id: 2,
+        patient: "Michael Chen",
+        patientExternalId: 'ext-2',
+        date: "2024-04-21",
+        time: "2:30 PM",
+        reason: "Root Canal Follow-up",
+        notes: "Check healing progress.",
+        tooth: 'All',
+        toothCondition: 'Healthy',
+      },
+      {
+        id: 3,
+        patient: "Emily Rodriguez",
+        patientExternalId: 'ext-3',
+        date: "2024-04-22",
+        time: "11:15 AM",
+        reason: "Filling",
+        notes: "Composite filling for tooth #8.",
+        tooth: '8',
+        toothCondition: 'Filling',
+      },
+    ]
+  })
+
+  useEffect(() => {
+    try {
+      // migrate appointments missing external ids: try to look up by name in patients
+      const rawPatients = typeof window !== 'undefined' ? window.localStorage.getItem('dv_patients') : null
+      const patients = rawPatients ? JSON.parse(rawPatients) : SEED_PATIENTS
+
+      const migrated = appointments.map((a) => {
+        if (a.patientExternalId) return a
+        const found = (patients || []).find((p:any) => String(p.name).toLowerCase() === String(a.patient).toLowerCase())
+        if (found && found.external_id) return { ...a, patientExternalId: found.external_id }
+        return a
+      })
+
+      window.localStorage.setItem('dv_appointments', JSON.stringify(migrated))
+    } catch (e) {
+      // ignore
+    }
+  }, [appointments])
 
   const [showAddAppointment, setShowAddAppointment] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -149,6 +121,60 @@ export default function AppointmentPage() {
     }
   }, []);
 
+  // keep edit form in sync with selected appointment
+  useEffect(() => {
+    if (selectedAppointment) {
+      setEditForm({ ...selectedAppointment })
+      setIsEditing(false)
+      setPatientSearch('')
+    } else {
+      setEditForm(null)
+      setIsEditing(false)
+    }
+  }, [selectedAppointment])
+
+  const handleCompleteAppointment = (appt: Appointment) => {
+    // remove appointment from list
+    setAppointments((prev) => prev.filter((a) => a.id !== appt.id))
+
+    try {
+      const raw = typeof window !== 'undefined' ? window.localStorage.getItem('dv_patients') : null
+      let patients = raw ? JSON.parse(raw) : null
+      if (!patients) {
+        // clone SEED_PATIENTS so we don't mutate the exported constant
+        patients = SEED_PATIENTS.map((p: any) => ({ ...p }))
+      }
+
+      // prefer matching by external id if available
+      let idx = -1
+      if (appt.patientExternalId) {
+        idx = patients.findIndex((p: any) => String(p.external_id) === String(appt.patientExternalId))
+      }
+      if (idx === -1) {
+        idx = patients.findIndex((p: any) => String(p.name).toLowerCase() === String(appt.patient).toLowerCase())
+      }
+
+      if (idx !== -1) {
+        const patient = patients[idx]
+        const visit = {
+          id: Date.now(),
+          date: appt.date,
+          procedure: appt.reason,
+          tooth: appt.tooth || '',
+          condition: appt.toothCondition || '',
+          notes: appt.notes || ''
+        }
+        patient.visits = [visit, ...(patient.visits || [])]
+        patient.lastVisit = appt.date
+        patient.lastNote = `${appt.reason} — ${appt.notes || ''}`
+        patients[idx] = patient
+        window.localStorage.setItem('dv_patients', JSON.stringify(patients))
+      }
+    } catch (e) {
+      console.error('Failed to append visit to patient', e)
+    }
+  }
+
   if (!isAuthenticated) {
     return null;
   }
@@ -167,20 +193,8 @@ export default function AppointmentPage() {
   const currentPageAppointments = filteredAppointments.slice(startIndex, endIndex);
 
   return (
-    <div className="flex h-screen bg-background">
-      <Sidebar
-        currentPage="appointments"
-        onNavigate={(page) => {
-          if (page === 'appointments') window.location.href = '/dashboard/appointment';
-          else if (page === 'patients') window.location.href = '/dashboard';
-          else if (page === 'reports') window.location.href = '/dashboard/reports';
-          else if (page === 'documents') window.location.href = '/dashboard/documents';
-          else if (page === 'settings') window.location.href = '/dashboard/settings';
-        }}
-        userEmail={userEmail}
-      />
-      <main className="flex-1 overflow-auto">
-        <div className="p-4 md:p-8 md:pl-12 pb-24 md:pb-8">
+    <div className="min-h-screen bg-background">
+      <div className="p-4 md:p-8 md:pl-12 pb-24 md:pb-8">
           <PageHeader
             title="Appointment Records"
             subtitle="Manage appointments and view schedules"
@@ -387,9 +401,91 @@ export default function AppointmentPage() {
                 <p className="text-muted-foreground">{selectedAppointment.date} - {selectedAppointment.time}</p>
               </div>
               <div className="mb-4">
-                <span className="block font-semibold text-lg mb-1">{selectedAppointment.patient}</span>
-                <span className="block text-sm text-muted-foreground mb-2">Reason: {selectedAppointment.reason}</span>
-                <span className="block text-xs text-muted-foreground italic">{selectedAppointment.notes}</span>
+                {!isEditing && (
+                  <>
+                    <span className="block font-semibold text-lg mb-1">{selectedAppointment.patient}</span>
+                    <span className="block text-sm text-muted-foreground mb-2">Reason: {selectedAppointment.reason}</span>
+                    <span className="block text-xs text-muted-foreground italic">{selectedAppointment.notes}</span>
+                    <div className="mt-2 text-sm text-muted-foreground">Tooth: {selectedAppointment.tooth || 'All'} • Condition: {selectedAppointment.toothCondition || 'Healthy'}</div>
+                  </>
+                )}
+
+                {isEditing && editForm && (
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-semibold mb-1">Patient</label>
+                      <input value={editForm.patient} onChange={(e) => setEditForm({ ...editForm, patient: e.target.value })} className="w-full px-3 py-2 rounded-md border border-border bg-background text-foreground text-sm" />
+                      <div className="mt-1">
+                        <input placeholder="Search patients..." value={patientSearch} onChange={(e) => setPatientSearch(e.target.value)} className="w-full px-3 py-2 rounded-md border border-border bg-background text-foreground text-sm" />
+                        <div className="max-h-32 overflow-y-auto mt-1 border border-border rounded-md bg-card">
+                          {(function(){ try { const raw = typeof window !== 'undefined' ? window.localStorage.getItem('dv_patients') : null; const list = raw ? JSON.parse(raw) : SEED_PATIENTS; return list.filter((p:any) => p.name.toLowerCase().includes(patientSearch.toLowerCase())).map((p:any)=> <button key={p.id} type="button" className={`w-full text-left px-3 py-2 text-sm ${editForm.patient===p.name ? 'bg-secondary' : ''}`} onClick={()=> setEditForm({...editForm, patient: p.name})}>{p.name}</button>) } catch(e){ return null } })()}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-sm font-semibold mb-1">Date</label>
+                        <input type="date" value={editForm.date} onChange={(e)=> setEditForm({...editForm, date: e.target.value})} className="w-full px-3 py-2 rounded-md border border-border bg-background text-foreground text-sm" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold mb-1">Time</label>
+                        <input value={editForm.time} onChange={(e)=> setEditForm({...editForm, time: e.target.value})} className="w-full px-3 py-2 rounded-md border border-border bg-background text-foreground text-sm" />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-sm font-semibold mb-1">Tooth</label>
+                        <select value={editForm.tooth || 'All'} onChange={(e)=> setEditForm({...editForm, tooth: e.target.value})} className="w-full px-3 py-2 rounded-md border border-border bg-background text-foreground text-sm">
+                          <option>All</option>
+                          {Array.from({length:32},(_,i)=> (<option key={i+1} value={String(i+1)}>{i+1}</option>))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold mb-1">Tooth Condition</label>
+                        <select value={editForm.toothCondition || 'Healthy'} onChange={(e)=> setEditForm({...editForm, toothCondition: e.target.value})} className="w-full px-3 py-2 rounded-md border border-border bg-background text-foreground text-sm">
+                          <option>Healthy</option>
+                          <option>Cavity</option>
+                          <option>Filling</option>
+                          <option>Missing</option>
+                          <option>Treatment</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold mb-1">Reason</label>
+                      <input value={editForm.reason} onChange={(e)=> setEditForm({...editForm, reason: e.target.value})} className="w-full px-3 py-2 rounded-md border border-border bg-background text-foreground text-sm" />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold mb-1">Notes</label>
+                      <textarea value={editForm.notes} onChange={(e)=> setEditForm({...editForm, notes: e.target.value})} className="w-full px-3 py-2 rounded-md border border-border bg-background text-foreground text-sm" rows={3} />
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="flex justify-end gap-2 mt-4">
+                {!isEditing && (
+                  <>
+                    <Button variant="ghost" onClick={() => setIsEditing(true)}>Edit</Button>
+                    <Button variant="ghost" onClick={() => { handleCompleteAppointment(selectedAppointment); setSelectedAppointment(null) }}>Complete</Button>
+                    <Button variant="default" onClick={() => setSelectedAppointment(null)}>Close</Button>
+                  </>
+                )}
+
+                {isEditing && (
+                  <>
+                    <Button variant="outline" onClick={() => { setIsEditing(false); setEditForm({ ...selectedAppointment }) }}>Cancel</Button>
+                    <Button variant="default" onClick={() => {
+                      if (!editForm) return
+                      setAppointments((prev) => prev.map((a) => a.id === editForm.id ? editForm : a))
+                      setIsEditing(false)
+                      setSelectedAppointment(editForm)
+                    }}>Save</Button>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -404,7 +500,6 @@ export default function AppointmentPage() {
             }}
           />
         )}
-      </main>
     </div>
   );
 }

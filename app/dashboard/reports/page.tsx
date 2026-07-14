@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Sidebar from "@/components/Sidebar";
 import { BarChart3, Users, Calendar, FileText } from "lucide-react";
 import { ChartContainer } from "@/components/ui/chart";
 import { Button } from '@/components/ui/button'
@@ -22,6 +21,8 @@ import {
 export default function ReportsPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userEmail, setUserEmail] = useState("");
+  const [totalPatients, setTotalPatients] = useState<number | null>(null)
+  const [appointmentsThisMonth, setAppointmentsThisMonth] = useState<number | null>(null)
 
   useEffect(() => {
     const auth = localStorage.getItem("isAuthenticated");
@@ -32,6 +33,23 @@ export default function ReportsPage() {
       setIsAuthenticated(true);
       setUserEmail(email || "");
     }
+    try {
+      const rawPatients = localStorage.getItem('dv_patients')
+      const patients = rawPatients ? JSON.parse(rawPatients) : null
+      if (patients) setTotalPatients(patients.length)
+      else setTotalPatients(128) // fallback
+
+      const rawAppts = localStorage.getItem('dv_appointments')
+      const appts = rawAppts ? JSON.parse(rawAppts) : []
+      const now = new Date()
+      const countThisMonth = appts.filter((a: any) => {
+        const d = new Date(a.date)
+        return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()
+      }).length
+      setAppointmentsThisMonth(countThisMonth)
+    } catch (e) {
+      // ignore
+    }
   }, []);
 
   if (!isAuthenticated) {
@@ -39,16 +57,8 @@ export default function ReportsPage() {
   }
 
   return (
-    <div className="flex h-screen bg-background">
-      <Sidebar currentPage="reports" onNavigate={(page) => {
-        if (page === 'appointments') window.location.href = '/dashboard/appointment';
-        else if (page === 'patients') window.location.href = '/dashboard';
-        else if (page === 'reports') window.location.href = '/dashboard/reports';
-        else if (page === 'documents') window.location.href = '/dashboard/documents';
-        else if (page === 'settings') window.location.href = '/dashboard/settings';
-      }} userEmail={userEmail} />
-      <main className="flex-1 overflow-auto">
-        <div className="p-4 md:p-8 md:pl-12 pb-24 md:pb-8">
+    <div className="min-h-screen bg-background">
+      <div className="p-4 md:p-8 md:pl-12 pb-24 md:pb-8">
           <PageHeader
             title="Reports & Analytics"
             subtitle="View clinic analytics and download reports"
@@ -62,21 +72,21 @@ export default function ReportsPage() {
 
           {/* Analytics Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-12">
-            <div className="bg-card border border-border rounded-xl p-6 flex flex-col gap-2">
+              <div className="bg-card border border-border rounded-xl p-6 flex flex-col gap-2">
               <div className="flex items-center gap-2 mb-2">
                 <Users className="w-5 h-5 text-primary" />
                 <span className="font-semibold text-lg">Total Patients</span>
               </div>
-              <div className="text-3xl font-bold text-foreground">128</div>
-              <div className="text-xs text-muted-foreground">As of April 2026</div>
+              <div className="text-3xl font-bold text-foreground">{totalPatients ?? '—'}</div>
+              <div className="text-xs text-muted-foreground">As of this month</div>
             </div>
             <div className="bg-card border border-border rounded-xl p-6 flex flex-col gap-2">
               <div className="flex items-center gap-2 mb-2">
                 <Calendar className="w-5 h-5 text-primary" />
                 <span className="font-semibold text-lg">Appointments This Month</span>
               </div>
-              <div className="text-3xl font-bold text-foreground">42</div>
-              <div className="text-xs text-muted-foreground">April 2026</div>
+              <div className="text-3xl font-bold text-foreground">{appointmentsThisMonth ?? '—'}</div>
+              <div className="text-xs text-muted-foreground">This month</div>
             </div>
             <div className="bg-card border border-border rounded-xl p-6 flex flex-col gap-2">
               <div className="flex items-center gap-2 mb-2">
@@ -137,7 +147,6 @@ export default function ReportsPage() {
             </div>
           </div>
         </div>
-      </main>
     </div>
   );
 }

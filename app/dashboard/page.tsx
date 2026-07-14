@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from 'react'
 import { Plus, Search, Clock } from 'lucide-react'
-import Sidebar from '@/components/Sidebar'
 import PatientList from '@/components/PatientList'
 import PatientRecord from '@/components/PatientRecord'
 import AddPatientModal from '@/components/AddPatientModal'
 import AddVisitModal from '@/components/AddVisitModal'
+import { SEED_PATIENTS } from '@/lib/mock/patients'
 import { Button } from '@/components/ui/button'
 import PageHeader from '@/components/PageHeader'
 
@@ -21,12 +21,13 @@ interface Visit {
 
 interface Patient {
   id: number
+  external_id?: string
   name: string
   age: number
-  contact: string
-  medicalNotes: string
-  lastVisit: string
-  lastNote: string
+  contact?: string
+  medicalNotes?: string
+  lastVisit?: string
+  lastNote?: string
   visits: Visit[]
   teethStatus: { [key: string]: string }
 }
@@ -39,190 +40,21 @@ export default function DashboardPage() {
   const [selectedPatient, setSelectedPatient] = useState<any>(null)
   const [showAddPatient, setShowAddPatient] = useState(false)
   const [showAddVisit, setShowAddVisit] = useState(false)
-  const [patients, setPatients] = useState<Patient[]>([
-    {
-      id: 1,
-      name: 'Sarah Johnson',
-      age: 34,
-      contact: '(555) 123-4567',
-      medicalNotes: 'Penicillin allergy, high blood pressure',
-      lastVisit: '2024-04-10',
-      lastNote: 'Needs filling on tooth #14',
-      visits: [
-        {
-          id: 1,
-          date: '2024-04-10',
-          procedure: 'Cleaning',
-          tooth: '#14, #15',
-          condition: 'Cavity detected',
-          notes: 'Upper molars show signs of decay. Recommended filling.',
-        },
-        {
-          id: 2,
-          date: '2024-03-15',
-          procedure: 'Check-up',
-          tooth: 'All',
-          condition: 'Generally healthy',
-          notes: 'Routine examination. Scaling recommended.',
-        },
-      ],
-      teethStatus: {
-        1: 'healthy', 2: 'healthy', 3: 'healthy', 4: 'healthy', 5: 'filling', 6: 'healthy', 7: 'healthy', 8: 'healthy',
-        9: 'healthy', 10: 'healthy', 11: 'cavity', 12: 'healthy', 13: 'healthy', 14: 'cavity', 15: 'cavity', 16: 'healthy',
-        17: 'healthy', 18: 'healthy', 19: 'healthy', 20: 'healthy', 21: 'healthy', 22: 'healthy', 23: 'healthy', 24: 'missing',
-        25: 'healthy', 26: 'healthy', 27: 'healthy', 28: 'healthy', 29: 'healthy', 30: 'healthy', 31: 'healthy', 32: 'healthy',
-      },
-    },
-    {
-      id: 2,
-      name: 'Michael Chen',
-      age: 52,
-      contact: '(555) 234-5678',
-      medicalNotes: 'Diabetic, takes Metformin',
-      lastVisit: '2024-04-05',
-      lastNote: 'Root canal therapy scheduled',
-      visits: [
-        {
-          id: 3,
-          date: '2024-04-05',
-          procedure: 'Root canal',
-          tooth: '#30',
-          condition: 'Infected pulp',
-          notes: 'Initial treatment. Follow-up in 2 weeks.',
-        },
-      ],
-      teethStatus: {
-        1: 'healthy', 2: 'healthy', 3: 'healthy', 4: 'healthy', 5: 'healthy', 6: 'healthy', 7: 'healthy', 8: 'healthy',
-        9: 'healthy', 10: 'healthy', 11: 'healthy', 12: 'healthy', 13: 'healthy', 14: 'healthy', 15: 'healthy', 16: 'healthy',
-        17: 'healthy', 18: 'healthy', 19: 'healthy', 20: 'healthy', 21: 'healthy', 22: 'healthy', 23: 'healthy', 24: 'healthy',
-        25: 'healthy', 26: 'healthy', 27: 'healthy', 28: 'healthy', 29: 'healthy', 30: 'treatment', 31: 'healthy', 32: 'healthy',
-      },
-    },
-    {
-      id: 3,
-      name: 'Emily Rodriguez',
-      age: 28,
-      contact: '(555) 345-6789',
-      medicalNotes: 'Anxiety disorder, bruxism noted',
-      lastVisit: '2024-04-08',
-      lastNote: 'Ongoing treatment',
-      visits: [
-        {
-          id: 4,
-          date: '2024-04-08',
-          procedure: 'Filling',
-          tooth: '#8',
-          condition: 'Small cavity',
-          notes: 'Composite filling placed. Patient advised about grinding.',
-        },
-      ],
-      teethStatus: {
-        1: 'healthy', 2: 'healthy', 3: 'healthy', 4: 'healthy', 5: 'healthy', 6: 'healthy', 7: 'healthy', 8: 'filling',
-        9: 'healthy', 10: 'healthy', 11: 'healthy', 12: 'healthy', 13: 'healthy', 14: 'healthy', 15: 'healthy', 16: 'healthy',
-        17: 'healthy', 18: 'healthy', 19: 'healthy', 20: 'healthy', 21: 'healthy', 22: 'healthy', 23: 'healthy', 24: 'healthy',
-        25: 'healthy', 26: 'healthy', 27: 'healthy', 28: 'healthy', 29: 'healthy', 30: 'healthy', 31: 'healthy', 32: 'healthy',
-      },
-    },
-    {
-      id: 4,
-      name: 'James Carter',
-      age: 41,
-      contact: '(555) 456-7890',
-      medicalNotes: 'No known allergies',
-      lastVisit: '2024-04-11',
-      lastNote: 'Check-up next month',
-      visits: [],
-      teethStatus: Object.fromEntries(Array.from({ length: 32 }, (_, i) => [i + 1, 'healthy'])),
-    },
-    {
-      id: 5,
-      name: 'Olivia Vance',
-      age: 24,
-      contact: '(555) 567-8901',
-      medicalNotes: 'Sensitive teeth',
-      lastVisit: '2024-04-02',
-      lastNote: 'Recommended sensitivity toothpaste',
-      visits: [],
-      teethStatus: Object.fromEntries(Array.from({ length: 32 }, (_, i) => [i + 1, 'healthy'])),
-    },
-    {
-      id: 6,
-      name: 'Robert Downey',
-      age: 58,
-      contact: '(555) 678-9012',
-      medicalNotes: 'Taking blood thinners',
-      lastVisit: '2024-04-12',
-      lastNote: 'Teeth cleaning completed',
-      visits: [],
-      teethStatus: Object.fromEntries(Array.from({ length: 32 }, (_, i) => [i + 1, 'healthy'])),
-    },
-    {
-      id: 7,
-      name: 'Jessica Alba',
-      age: 39,
-      contact: '(555) 789-0123',
-      medicalNotes: 'Pregnancy patient (2nd trimester)',
-      lastVisit: '2024-03-28',
-      lastNote: 'Routine scaling done',
-      visits: [],
-      teethStatus: Object.fromEntries(Array.from({ length: 32 }, (_, i) => [i + 1, 'healthy'])),
-    },
-    {
-      id: 8,
-      name: 'David Beckham',
-      age: 49,
-      contact: '(555) 890-1234',
-      medicalNotes: 'Bruxism, uses nightguard',
-      lastVisit: '2024-04-01',
-      lastNote: 'Nightguard adjustment check',
-      visits: [],
-      teethStatus: Object.fromEntries(Array.from({ length: 32 }, (_, i) => [i + 1, 'healthy'])),
-    },
-    {
-      id: 9,
-      name: 'Emma Watson',
-      age: 33,
-      contact: '(555) 901-2345',
-      medicalNotes: 'Allergic to latex',
-      lastVisit: '2024-04-04',
-      lastNote: 'Small pit on tooth #19 monitored',
-      visits: [],
-      teethStatus: Object.fromEntries(Array.from({ length: 32 }, (_, i) => [i + 1, 'healthy'])),
-    },
-    {
-      id: 10,
-      name: 'William Prince',
-      age: 45,
-      contact: '(555) 012-3456',
-      medicalNotes: 'High cholesterol',
-      lastVisit: '2024-04-06',
-      lastNote: 'Routine check-up scheduled',
-      visits: [],
-      teethStatus: Object.fromEntries(Array.from({ length: 32 }, (_, i) => [i + 1, 'healthy'])),
-    },
-    {
-      id: 11,
-      name: 'Sophia Loren',
-      age: 72,
-      contact: '(555) 123-9876',
-      medicalNotes: 'Osteoporosis medications',
-      lastVisit: '2024-03-20',
-      lastNote: 'Denture adjustments',
-      visits: [],
-      teethStatus: Object.fromEntries(Array.from({ length: 32 }, (_, i) => [i + 1, 'healthy'])),
-    },
-    {
-      id: 12,
-      name: 'Henry Cavill',
-      age: 36,
-      contact: '(555) 234-8765',
-      medicalNotes: 'Healthy, active patient',
-      lastVisit: '2024-04-14',
-      lastNote: 'Routine scaling completed',
-      visits: [],
-      teethStatus: Object.fromEntries(Array.from({ length: 32 }, (_, i) => [i + 1, 'healthy'])),
-    },
-  ])
+  const [patients, setPatients] = useState<Patient[]>(() => {
+    try {
+      const raw = typeof window !== 'undefined' ? window.localStorage.getItem('dv_patients') : null
+      if (raw) {
+        return JSON.parse(raw) as Patient[]
+      }
+    } catch (e) {
+      // ignore parse errors
+    }
+    // use shared seed list
+    return SEED_PATIENTS.map((p) => ({
+      ...p,
+      external_id: p.external_id || ((typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') ? crypto.randomUUID() : `ext-${p.id}`),
+    }))
+  })
 
   // Check authentication on mount
   useEffect(() => {
@@ -234,7 +66,17 @@ export default function DashboardPage() {
       setIsAuthenticated(true)
       setUserEmail(email || '')
     }
+    // persist patients to localStorage whenever they change
   }, [])
+
+  // persist patients whenever they change
+  useEffect(() => {
+    try {
+      window.localStorage.setItem('dv_patients', JSON.stringify(patients))
+    } catch (e) {
+      // ignore
+    }
+  }, [patients])
 
   const handleAddPatient = (newPatient: any) => {
     const patient = {
@@ -270,37 +112,15 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex md:flex-row flex-col h-screen bg-background">
-      {/* Sidebar (desktop) and bottom nav (mobile) */}
-      <Sidebar
-        currentPage={currentPage}
-        onNavigate={(page) => {
-          if (page === 'appointments') {
-            window.location.href = '/dashboard/appointment';
-          } else if (page === 'patients') {
-            window.location.href = '/dashboard';
-          } else if (page === 'reports') {
-            window.location.href = '/dashboard/reports';
-          } else if (page === 'documents') {
-            window.location.href = '/dashboard/documents';
-          } else if (page === 'settings') {
-            window.location.href = '/dashboard/settings';
-          } else {
-            setCurrentPage(page);
-          }
-        }}
-        userEmail={userEmail}
-      />
-
-      <main className="flex-1 overflow-auto">
-        <div className="p-4 md:p-8 md:pl-12 pb-24 md:pb-8">
+    <div className="min-h-screen bg-background">
+      <div className="p-4 md:p-8 md:pl-12 pb-24 md:pb-8">
           {currentPage === 'patients' ? (
             <div>
               {currentView === 'list' ? (
                 <>
                   <PageHeader title="Dental Records" subtitle="Search, review, and open a patient record from the cards below." />
                   <PatientList
-                    patients={patients}
+                    patients={patients as any}
                     onSelectPatient={(patient) => {
                       setSelectedPatient(patient)
                       setCurrentView('record')
@@ -349,8 +169,6 @@ export default function DashboardPage() {
             </div>
           )}
         </div>
-      </main>
-
       {showAddPatient && (
         <AddPatientModal
           onClose={() => setShowAddPatient(false)}
